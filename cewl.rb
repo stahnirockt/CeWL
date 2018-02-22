@@ -278,7 +278,7 @@ class MySpiderInstance<SpiderInstance
 			end
 
 			res = http.request(req)
-			
+
 			if res.redirect?
 				puts "Redirect URL" if @debug
 				base_url = uri.to_s[0, uri.to_s.rindex('/')]
@@ -519,7 +519,9 @@ opts = GetoptLong.new(
 		['--proxy_username', GetoptLong::REQUIRED_ARGUMENT],
 		['--proxy_password', GetoptLong::REQUIRED_ARGUMENT],
 		["--verbose", "-v", GetoptLong::NO_ARGUMENT],
-		["--debug", GetoptLong::NO_ARGUMENT]
+		["--debug", GetoptLong::NO_ARGUMENT],
+		["--keyspace", "-K", GetoptLong::REQUIRED_ARGUMENT],
+		["--sentence_mode", "-s", GetoptLong::REQUIRED_ARGUMENT],
 )
 
 # Display the usage
@@ -543,21 +545,30 @@ def usage
 	-c, --count: Show the count for each word found.
 	-v, --verbose: Verbose.
 	--debug: Extra debug information.
-      
+	-K <x>, --keyspace <x>: Define the keyspace, default 1.
+		1) only characters,
+		2) characters and digits,
+		3) only digits
+	-s <x>, --sentence_mode: Define how the wordlist shoul be designed, default 1.
+		1) only words,
+		2)only connected Sentences,
+		3)only first letter of each word in a sentence,
+		4) all
+
 	Authentication
 	--auth_type: Digest or basic.
 	--auth_user: Authentication username.
 	--auth_pass: Authentication password.
-      
+
 	Proxy Support
 	--proxy_host: Proxy host.
 	--proxy_port: Proxy port, default 8080.
 	--proxy_username: Username for proxy, if required.
 	--proxy_password: Password for proxy, if required.
-      
+
 	Headers
 	--header, -H: In format name:value - can pass multiple.
-      
+
     <url>: The site to spider.
 
 "
@@ -588,6 +599,9 @@ proxy_host = nil
 proxy_port = nil
 proxy_username = nil
 proxy_password = nil
+
+keyspace = 1
+sentence_mode = 1
 
 # headers will be passed in in the format "header: value"
 # and there can be multiple
@@ -646,6 +660,12 @@ begin
 				outfile = arg
 			when "--header"
 				headers << arg
+			when '--sentence_mode'
+				sentence_mode = arg.to_i
+				usage if sentence_mode < 0 or sentence_mode > 4
+			when '--keyspace'
+				keyspace = arg.to_i
+				usage if keyspace < 0 or keyspace > 3
 			when "--proxy_password"
 				proxy_password = arg
 			when "--proxy_username"
@@ -692,6 +712,7 @@ if auth_type.nil? && (!auth_user.nil? || !auth_pass.nil?)
 end
 
 if ARGV.length != 1
+	puts ARGV.to_s
 	puts "\nMissing URL argument (try --help)\n\n"
 	exit 1
 end
@@ -967,8 +988,19 @@ catch :ctrl_c do
 
 						if wordlist
 							# Remove any symbols
-							words.gsub!(/[^[:alpha:]]/i, " ")
+							case keyspace
+								when 1
+									puts "\nK1 erreicht"
+									words.gsub!(/[^[:alpha:]]/i, " ")
+								when 2
+									puts "\nK2 erreicht"
+									words.gsub!(/[^[:alpha:]\d++]/i, " ")
+								when 3
+									puts "\nK3 erreicht"
+									words.gsub!(/[^[\d++]]/i, " ")
+							end
 
+							# add sentence_mode case when....
 							# Add to the array
 							words.split(" ").each do |word|
 								if word.length >= min_word_length
