@@ -533,7 +533,7 @@ def usage
 	-k, --keep: Keep the downloaded file.
 	-d <x>,--depth <x>: Depth to spider to, default 2.
 	-C <x>,--characters <x>: 1 - letters, 2 - letters and numbers, 3 - only numbers.
-	-s <x>,--sentence_mode <x>: 1 - words, 2ja - concat words, 3 - concat first letters of each word.
+	-s <x>,--sentence_mode <x>: 1 - words, 2 - concat words, 3 - concat first letters of each word.
 	-m, --min_word_length: Minimum word length, default 3.
 	-o, --offsite: Let the spider visit other sites.
 	-w, --write: Write the output to the file.
@@ -642,10 +642,10 @@ begin
 				usage if depth < 0
 			when '--characters'
 				characters = arg.to_i
-				usage if depth < 0
+				usage if characters < 0 or characters > 3
 			when '--sentence_mode'
 				sentence_mode = arg.to_i
-				usage if depth < 0
+				usage if sentence_mode < 0 or sentence_mode > 3
 			when '--offsite'
 				offsite = true
 			when '--ua'
