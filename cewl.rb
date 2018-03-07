@@ -499,7 +499,7 @@ opts = GetoptLong.new(
 		['--help', '-h', GetoptLong::NO_ARGUMENT],
 		['--keep', '-k', GetoptLong::NO_ARGUMENT],
 		['--depth', '-d', GetoptLong::REQUIRED_ARGUMENT],
-		['--keyspace', '-K', GetoptLong::REQUIRED_ARGUMENT],
+		['--characters', '-C', GetoptLong::REQUIRED_ARGUMENT],
 		['--sentence_mode', '-s', GetoptLong::REQUIRED_ARGUMENT],
 		['--min_word_length', "-m", GetoptLong::REQUIRED_ARGUMENT],
 		['--no-words', "-n", GetoptLong::NO_ARGUMENT],
@@ -532,7 +532,7 @@ def usage
 	-h, --help: Show help.
 	-k, --keep: Keep the downloaded file.
 	-d <x>,--depth <x>: Depth to spider to, default 2.
-	-K <x>,--keyspace <x>: 1 - letters, 2 - letters and numbers, 3 - only numbers.
+	-C <x>,--characters <x>: 1 - letters, 2 - letters and numbers, 3 - only numbers.
 	-s <x>,--sentence_mode <x>: 1 - words, 2ja - concat words, 3 - concat first letters of each word.
 	-m, --min_word_length: Minimum word length, default 3.
 	-o, --offsite: Let the spider visit other sites.
@@ -577,7 +577,7 @@ email_outfile = nil
 meta_outfile = nil
 offsite = false
 depth = 2
-keyspace = 1
+characters = 1
 sentence_mode = 1
 min_word_length = 3
 email = false
@@ -640,8 +640,8 @@ begin
 			when '--depth'
 				depth = arg.to_i
 				usage if depth < 0
-			when '--keyspace'
-				keyspace = arg.to_i
+			when '--characters'
+				characters = arg.to_i
 				usage if depth < 0
 			when '--sentence_mode'
 				sentence_mode = arg.to_i
@@ -987,7 +987,7 @@ catch :ctrl_c do
 
 								# just words
 								when 1
-									case keyspace
+									case characters
 										when 1
 											words.gsub!(/[^[:alpha:]]/i, " ")
 										when 2
@@ -1004,7 +1004,7 @@ catch :ctrl_c do
 
 								# concating words
 								when 2
-									case keyspace
+									case characters
 										when 1
 											words.gsub!(/[^[:alpha:]|\.\!\?\n]/i," ")
 										when 2
@@ -1022,7 +1022,7 @@ catch :ctrl_c do
 
 								# concating first letter of each word
 								when 3
-									case keyspace
+									case characters
 										when 1
 											words.gsub!(/[^[:alpha:]|\.\!\?\n]/i," ")
 										when 2
