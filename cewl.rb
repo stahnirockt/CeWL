@@ -989,39 +989,36 @@ catch :ctrl_c do
 								when 1
 									case characters
 										when 1
+											#replace everything except alphabetical letters with " "
 											words.gsub!(/[^[:alpha:]]/i, " ")
 										when 2
+											#replace everything except alphabetical letters or numbers with " "
 										  words.gsub!(/[^[:alpha:]|\d+]/i, " ")
 										when 3
+											#replace everything except numbers with " "
 										  words.gsub!(/[^\d+]/i, " ")
 									end
-									words.split(" ").each do |word|
-										if word.length >= min_word_length
-											word_hash[word] = 0 if !word_hash.has_key?(word)
-											word_hash[word] += 1
-										end
-									end
+									wordlist_candidate = words.split(" ")
 
 								# concating words
 								when 2
 									case characters
+										#keeping '!' '?' '.' and new Line, to mark the end of a sentence - they are needed to split the result
 										when 1
+											#replace everything except alphabetical letters and punctuation marks with " "
 											words.gsub!(/[^[:alpha:]|\.\!\?\n]/i," ")
 										when 2
+											#replace everything except alphabetical letters or numbers and punctuation marks with " "
 											words.gsub!(/[^[:alpha:]|\d+|\.\!\?\n]/i, " ")
 										when 3
+											#replace everything except numbers and punctuation marks with " "
 											words.gsub!(/[^\d+|\.\!\?\n]/i, " ")
 									end
-									sentence = words.split(/\.|\?|\!|\n/).map{|n| n.split.join()}
-									sentence.each do |word|
-  										if word.length >= min_word_length
-    											word_hash[word] = 0 if !word_hash.has_key?(word)
-    											word_hash[word] += 1
-  										end
-									end
+									wordlist_candidate = words.split(/\.|\?|\!|\n/).map{|n| n.split.join()}
 
 								# concating first letter of each word
 								when 3
+									#regexp like sentence_mode case 2
 									case characters
 										when 1
 											words.gsub!(/[^[:alpha:]|\.\!\?\n]/i," ")
@@ -1030,14 +1027,16 @@ catch :ctrl_c do
 										when 3
 											words.gsub!(/[^\d+|\.\!\?\n]/i, " ")
 									end
-									sentence = words.split(/\.|\?|\!|\n/).map{|n| n.split.map{|e| e[0]}.join().gsub(/\d+/, '')}
-									sentence.each do |word|
-  										if word.length >= min_word_length
-    											word_hash[word] = 0 if !word_hash.has_key?(word)
-    											word_hash[word] += 1
-  										end
+									wordlist_candidate = words.split(/\.|\?|\!|\n/).map{|n| n.split.map{|e| e[0]}.join().gsub(/\d+/, '')}
+
+								end
+
+								wordlist_candidate.each do |candidate|
+									if candidate.length >= min_word_length
+										word_hash[candidate] = 0 if !word_hash.has_key?(candidate)
+										word_hash[candidate] += 1
 									end
-							end
+								end
 						end
 						#end
 					rescue => e
